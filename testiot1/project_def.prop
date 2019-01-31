@@ -1,0 +1,11 @@
+APPNAME = testiot1
+
+type = app
+profile = iot-headless-4.0
+
+USER_SRCS = src/testiot1.c
+USER_DEFS =
+USER_INC_DIRS = inc, inc/sdk
+USER_OBJS =
+USER_LIBS = lib/liboicdastack.so, lib/libsdkapi.so
+USER_EDCS =

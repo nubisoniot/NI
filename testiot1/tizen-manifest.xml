@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="4.0" package="org.example.testiot1" version="1.0.0">
+    <profile name="iot-headless"/>
+    <service-application appid="org.example.testiot1" exec="testiot1" multiple="false" nodisplay="true" on-boot="true" taskmanage="false" type="capp">
+        <label>testiot1</label>
+        <icon>testiot1.png</icon>
+        <background-category value="background-network"/>
+    </service-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/network.get</privilege>
+        <privilege>http://tizen.org/privilege/network.set</privilege>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/alarm.set</privilege>
+        <privilege>http://tizen.org/privilege/network.profile</privilege>
+        <privilege>http://tizen.org/privilege/peripheralio</privilege>
+    </privileges>
+</manifest>

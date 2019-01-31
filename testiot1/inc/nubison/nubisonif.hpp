@@ -1,0 +1,82 @@
+/* 
+ * Nubison IoT Cloud와 연동하는 클래스 소스 
+ * (주) 심플랫폼 by Lim Dae Geun
+ */
+
+
+#ifndef  NUBISONIF_h
+#define NUBISONIF_h
+
+
+
+
+#include "nubisonif.hpp"
+
+
+
+
+#define TYPE_STRING "STRING"
+#define TYPE_DEC     "DEC"
+
+#define IF_QUERY_CALLBACK_FN void (*query_nubicb)(char *, char *,char *)
+#define IF_INVOKE_CALLBACK_FN void (*invoke_nubicb)(char *, char *,char *)
+#define IF_SETTING_CALLBACK_FN void (*setting_nubicb)(char *, char *,char *)
+#define IF_CHECK_CALLBACK_FN void (*check_nubicb)(char *, char *,char *)
+#define IF_AUTHO_CALLBACK_FN void (*auth_nubicb)(int )
+
+
+//Nubison Interface Protocal Define
+
+#define USE_MOSQUITTO_MQTT 1
+//#define USE_INTER_MQTT
+
+
+
+/**
+ * @ Nubison IoT Cloud 에서 인증  Option
+ * @
+ */
+typedef enum {
+	NUBISONIOT_AUTHO_OK = 0,              			/** [정상] 클라우드 사용 정상 인증  */
+	NUBISONIOT_AUTHO_ERROR_TESTTIME_EXPIRE,  		/** [에러] 테스트 사용시간 만료    */
+	NUBISONIOT_AUTHO_ERROR_UNAUTHORIZED_USE   		/** [에러] 비인가 사용  			*/
+} nubison_autho_e;
+
+
+
+
+class NubisonIF
+{
+	public:
+		NubisonIF () ;
+		~NubisonIF();
+	void Loop();
+    int Init(char *cloudaddress,int port,char* tokenkey );
+    void SetCBFuntion(IF_QUERY_CALLBACK_FN,IF_INVOKE_CALLBACK_FN,IF_SETTING_CALLBACK_FN,IF_CHECK_CALLBACK_FN,IF_AUTHO_CALLBACK_FN);
+	void SendtoCloud(char *sdata,char *type,char* api,char* uniqKey);
+	void NotitoCloud(char *sdata, char *type, char* uniqKey,int min_term);
+
+
+    IF_QUERY_CALLBACK_FN;
+    IF_INVOKE_CALLBACK_FN;
+    IF_SETTING_CALLBACK_FN;
+    IF_CHECK_CALLBACK_FN;
+    IF_AUTHO_CALLBACK_FN;
+
+    int _connectstate;
+    
+	private:
+    char _tokenkey[256]; // 기기에 발급되는 유니크한 key
+	char _uniqkey[256];  // 클라우드에 호출시 일시 생성되는 유니크한 key
+	char _cloudaddress[64];
+
+
+	int _port;
+	int _pretime;
+
+	//USE MQTT
+	struct mosquitto *mosq;
+   
+};
+
+#endif
