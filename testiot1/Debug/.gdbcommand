@@ -1,6 +1,0 @@
-set sysroot /Users/simplatform/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/iot-headless/rootstraps/iot-headless-4.0-device.core
-set debug-file-directory /Users/simplatform/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/iot-headless/rootstraps/iot-headless-4.0-device.core/usr/lib/debug
-set solib-search-path /Users/simplatform/Documents/dev/tizen/testiot1/Debug
-dir /Users/simplatform/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/iot-headless/rootstraps/iot-headless-4.0-device.core/usr/src/debug
-file "/Users/simplatform/Documents/dev/tizen/testiot1/Debug/testiot1"
-sharedlibrary

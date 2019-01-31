@@ -309,10 +309,6 @@
                                 								
                                 <option id="gnu.cpp.link.option.libs.269720886" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
                                     									
-                                    <listOptionValue builtIn="false" value="oicdastack"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="sdkapi"/>
-                                    									
                                     <listOptionValue builtIn="false" value="nubioniotif"/>
                                     								
                                 </option>
@@ -651,9 +647,7 @@
                                 								
                                 <option id="gnu.cpp.link.option.libs.1498154882" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
                                     									
-                                    <listOptionValue builtIn="false" value="oicdastack"/>
-                                    									
-                                    <listOptionValue builtIn="false" value="sdkapi"/>
+                                    <listOptionValue builtIn="false" value="nubioniotif"/>
                                     								
                                 </option>
                                 								

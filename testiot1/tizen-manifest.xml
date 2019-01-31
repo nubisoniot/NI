@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="4.0" package="org.example.testiot1" version="1.0.0">
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.0" package="org.example.testiot1" version="1.0.0">
     <profile name="iot-headless"/>
     <service-application appid="org.example.testiot1" exec="testiot1" multiple="false" nodisplay="true" on-boot="true" taskmanage="false" type="capp">
         <label>testiot1</label>
