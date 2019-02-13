@@ -33,35 +33,26 @@
  * */
 #include "nubisonif.hpp"
 
-//==========================
-// 서버에서 발급한 key입니다. 수정하지 마세요.
-char mytoken[32] = "54s8-t812-7H8y-1068";
+// 누비슨 클라우드에서 발급하는 인식키
+// 연결장치의 제품 식별키를 입력하기
+char mytoken[32] = "XXXX-XXXX-XXXX-XXXX";
 
-//Nubison IoT 클라우드 서비스 주소(테스트서버 주소)
+// Nubison IoT 클라우드 서비스 주소(테스트서버 주소)
 char cloudifaddress[64]="nubisoniot.com";
+
 // 클라우드 접속 포트 번
 int  cloudifport=1883;
 
-
-
-//==========================
-
-//==========================
-
-//Nubison IoT 연계 모듈 클래스 인스턴
+//Nubison IoT 연계 모듈 클래스 인스턴스
 static NubisonIF *cloudif=NULL;
 
-/*
- *하드웨어 제어관련 전역변
- * */
+// 하드웨어 제어용 전역변수
 static peripheral_gpio_h g_sensor_h = NULL;
-
 static int g_pin_num = -1;
-
 static int button_state=0;
 
 /*
- *GPIO제어 코드 LED제
+ * GPIO제어 코드 LED 제어
  * */
 int resource_write_led(int pin_num, int write_value)
 {
@@ -102,33 +93,26 @@ int resource_write_led(int pin_num, int write_value)
 	return 0;
 }
 
-
 /*
- *GPIO Sensor Read
+ * GPIO Sensor Read
  * */
 int resource_read_sensor(int pin_num, uint32_t *read_value)
 {
 	int ret = PERIPHERAL_ERROR_NONE;
-		peripheral_gpio_h temp = NULL;
+	peripheral_gpio_h temp = NULL;
 
-		dlog_print(DLOG_INFO, "NUBISON", "GPIO OPEN");
-		ret = peripheral_gpio_open(pin_num, &temp);
-		dlog_print(DLOG_INFO, "NUBISON", "State %d",ret);
+	dlog_print(DLOG_INFO, "NUBISON", "GPIO OPEN");
+	ret = peripheral_gpio_open(pin_num, &temp);
 
-		retv_if(ret, -1);
+	dlog_print(DLOG_INFO, "NUBISON", "State %d",ret);
+	retv_if(ret, -1);
 
-		ret = peripheral_gpio_set_direction(temp, PERIPHERAL_GPIO_DIRECTION_IN);
-		if (ret) {
-			peripheral_gpio_close(temp);
-			dlog_print(DLOG_INFO, "NUBISON", "peripheral_gpio_set_direction failed.");
-
-			return -1;
-		}
-
-
-
-
-
+	ret = peripheral_gpio_set_direction(temp, PERIPHERAL_GPIO_DIRECTION_IN);
+	if (ret) {
+		peripheral_gpio_close(temp);
+		dlog_print(DLOG_INFO, "NUBISON", "peripheral_gpio_set_direction failed.");
+		return -1;
+	}
 
 	ret = peripheral_gpio_read(temp, (uint32_t*)read_value);
 	retv_if(ret < 0, -1);
@@ -139,20 +123,12 @@ int resource_read_sensor(int pin_num, uint32_t *read_value)
 	return 0;
 }
 
-
-/*
- * Nubison Cloud과 통신하는 콜백 함수
- */
-
+// Nubison Cloud과 통신하는 콜백 함수
 //1.Device 의 상태를 조회하는 콜백
 void NubisonCB_Query(char* rdata, char* api, char* uniqkey)
 {
-
-
-	// 아래 함수는 서버에 값을 전송하는 코드입니다.
 	// sendData를 String 자료형 변수로 저장하여 보내주세요.
 	char tmp[32];
-
 
 	uint32_t sensor_value=0;
 	resource_read_sensor(17,&sensor_value);
@@ -162,27 +138,14 @@ void NubisonCB_Query(char* rdata, char* api, char* uniqkey)
 	// 관련해서 정확히 DB에 Unit 별로 들어 게 하는 것은 클라우드 서버에서 Driver로 셋팅함//
 	cloudif->SendtoCloud(tmp, TYPE_STRING, api, uniqkey);
 }
+
 //2.Device 의 제어 하는 콜백
 void NubisonCB_Invoke(char* rdata, char* api, char* uniqkey)
 {
 	printf("InvokeCB:%s %s %s\n",rdata,api,uniqkey);
-	// 아래 함수는 서버에 값을 전송하는 코드입니다.
-	// sendData를 String 자료형 변수로 저장하여 보내주세요.
-
-
-
-	/*
-	 * 하드웨어 제어 코드 작성
-	 * ---->
-	 * */
 
 	uint32_t value = atoi(rdata);
-
 	resource_write_led(26,value);
-
-	/*
-	 * <----
-	 * */
 
 	// 클라우드에서 조회 요청이 왔을때 관련된내용을 담아서 전달 함
     // 제어가 성공적으로 되었는지확인해서 값을 전달함//
@@ -190,30 +153,30 @@ void NubisonCB_Invoke(char* rdata, char* api, char* uniqkey)
 
 
 }
+
 //3.Device 의 하드웨어 설정 하는 콜백
 void NubisonCB_Setting(char* rdata, char* api, char* uniqkey)
 {
 	printf("SettingCB:%s %s %s\n",rdata,api,uniqkey);
 
-
 	// 클라우드에서 조회 요청이 왔을때 관련된내용을 담아서 전달 함
 	// 설정 성공적으로 되었는지확인해서 값을 전달함//
 	cloudif->SendtoCloud((char*)"ok", TYPE_STRING, api, uniqkey);
 }
+
 //4.Device 의 하드웨어 상태를 체크 하는 콜백
 void NubisonCB_Check(char* rdata, char* api, char* uniqkey)
 {
 	printf("CheckCB:%s %s %s\n",rdata,api,uniqkey);
 
-
 	// 클라우드에서 조회 요청이 왔을때 관련된내용을 담아서 전달 함
 	// 상태체크 성공적으로 되었는지확인해서 값을 전달함//
 	cloudif->SendtoCloud((char*)"ok", TYPE_STRING, api, uniqkey);
 }
+
 //5.Device 의 클라우드와의 인증 관련  콜백
 void NubisonCB_AUTHO(int authocode)
 {
-
 	  //1.인증에 정상적으로
 	  if(authocode==NUBISONIOT_AUTHO_OK)
 	  {
@@ -227,57 +190,34 @@ void NubisonCB_AUTHO(int authocode)
 	  {
 
 	  }
-
 }
-
-/*
- *
- */
-
 
 Eina_Bool app_idler(void *data)
 {
 	NubisonIF * nubif=(NubisonIF * )data;
-		if(nubif!=NULL)
-		{
-			nubif->Loop();
-		}
+	if(nubif!=NULL) {
+		nubif->Loop();
+	}
     return ECORE_CALLBACK_RENEW;
 }
-
-
-
-
 
 static bool service_app_create(void *user_data)
 {
 	FN_CALL;
 
+	//1. Nubison IoT 연계 모듈 생
+	cloudif=new NubisonIF();
 
-			/*
-			 * Nubison Cloud 연계 관련 코드 시작
-			 */
-			        		//1. Nubison IoT 연계 모듈 생
+	//2.콜백 함수를 설정
+	cloudif->SetCBFuntion(NubisonCB_Query, NubisonCB_Invoke, NubisonCB_Setting,NubisonCB_Check,NubisonCB_AUTHO);
 
+	//3. 클라우드 접속 정보를 설정해서 초기화
+	int ret=cloudif->Init(cloudifaddress,cloudifport,mytoken);
+	if(ret!=0) {
+		dlog_print(DLOG_ERROR, "NUBISON", "Nubison IoT 연결 에러 발생 ");
+	}
 
-						cloudif=new NubisonIF();
-
-						//2.콜백 함수를 설정
-						cloudif->SetCBFuntion(NubisonCB_Query, NubisonCB_Invoke, NubisonCB_Setting,NubisonCB_Check,NubisonCB_AUTHO);
-
-						//3. 클라우드 접속 정보를 설정해서 초기화
-						int ret=cloudif->Init(cloudifaddress,cloudifport,mytoken);
-						if(ret!=0){
-							dlog_print(DLOG_ERROR, "NUBISON", "Nubison IoT 연결 에러 발생 ");
-						}
-
-
-
-				ecore_idler_add(app_idler, cloudif);
-
-
-
-
+	ecore_idler_add(app_idler, cloudif);
 
 	return true;
 }
@@ -286,7 +226,6 @@ static void service_app_terminate(void *user_data)
 {
 	FN_CALL;
 
-
 	 if(g_sensor_h!=NULL)
 		 peripheral_gpio_close(g_sensor_h);
 }
@@ -294,11 +233,7 @@ static void service_app_terminate(void *user_data)
 static void service_app_control(app_control_h app_control, void *user_data)
 {
 	FN_CALL;
-
 }
-
-
-
 
 int main(int argc, char *argv[])
 {
@@ -307,14 +242,9 @@ int main(int argc, char *argv[])
 	char ad[50] = {0,};
 	service_app_lifecycle_callback_s event_callback;
 
-
 	event_callback.create = service_app_create;
 	event_callback.terminate = service_app_terminate;
 	event_callback.app_control = service_app_control;
-
-
-
-
 
 	return service_app_main(argc, argv, &event_callback, ad);
 }
