@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.0" package="org.example.testiot2" version="1.0.0">
+    <profile name="iot-headless"/>
+    <service-application appid="org.example.testiot2" exec="testiot2" multiple="false" nodisplay="true" taskmanage="false" type="capp">
+        <label>testiot2</label>
+        <icon>testiot2.png</icon>
+    </service-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/peripheralio</privilege>
+    </privileges>
+</manifest>
