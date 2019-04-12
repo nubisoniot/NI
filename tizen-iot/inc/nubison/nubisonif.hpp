@@ -37,7 +37,7 @@
 #define IF_AUTHO_CALLBACK_FN void (*auth_nubicb)(int )
 
 
-//Nubison Interface Protocal Define
+//Nubison Interface Protocol Define
 
 #define USE_MOSQUITTO_MQTT 1
 //#define USE_INTER_MQTT
@@ -51,7 +51,7 @@
 typedef enum {
 	NUBISONIOT_AUTHO_OK = 0,              			/** [정상] 클라우드 사용 정상 인증  */
 	NUBISONIOT_AUTHO_ERROR_TESTTIME_EXPIRE,  		/** [에러] 테스트 사용시간 만료    */
-	NUBISONIOT_AUTHO_ERROR_UNAUTHORIZED_USE   		/** [에러] 비인가 사용  			*/
+	NUBISONIOT_AUTHO_ERROR_UNAUTHORIZED_USE   		/** [에러] 비인가 사용  		*/
 } nubison_autho_e;
 
 
