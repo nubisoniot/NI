@@ -29,6 +29,7 @@
 // Nubison IoT 연계 모듈 헤더파일
 #include "nubisonif.hpp"
 
+#define BUFSIZE 32
 #define SENSOR_LED_GPIO_NUMBER (26)
 
 // 누비슨 클라우드에서 발급하는 인식키
@@ -44,24 +45,20 @@ int  cloudifport = 1883;
 //Nubison IoT 연계 모듈 클래스 인스턴스
 static NubisonIF *cloudif = NULL;
 
+static int led0 = 0;
+static int led1 = 1;
+
 
 // Nubison Cloud과 통신하는 콜백 함수
 //1.Device 의 상태를 조회하는 콜백
 void NubisonCB_Query(char* rdata, char* api, char* uniqkey)
 {
 	DBG("QueryCB : %s %s %s", rdata, api, uniqkey);
-	// sendData를 String 자료형 변수로 저장하여 보내주세요.
-	char tmp[32];
 
-	int pin_num = atoi(rdata);
-	uint32_t sensor_value = 0;
-	int ret = resource_read_led(pin_num, &sensor_value);
-	if (ret != 0) {
-		sprintf(tmp, "%s", (char *)"fail");
-	} else {
-		sprintf(tmp, "%s (%d)", (char *)"success", sensor_value);
-	}
-	//sprintf(tmp, "%d", sensor_value);
+	// sendData를 String 자료형 변수로 저장하여 보내주세요.
+	char tmp[BUFSIZE] = {0, };
+	sprintf(tmp, "%d:%d", led0, led1);
+
 	// 클라우드에서 조회 요청이 왔을때 관련된내용을 담아서 전달 함
 	// 관련해서 정확히 DB에 Unit 별로 들어 게 하는 것은 클라우드 서버에서 Driver로 셋팅함
 	cloudif->SendtoCloud(tmp, TYPE_STRING, api, uniqkey);
@@ -72,14 +69,31 @@ void NubisonCB_Invoke(char* rdata, char* api, char* uniqkey)
 {
 	DBG("InvokeCB : %s %s %s", rdata, api, uniqkey);
 
-	char tmp[32];
+	char tmp[BUFSIZE] = {0, };
+	char *word = NULL;
 
-	uint32_t value = atoi(rdata);
-	int ret = resource_write_led(SENSOR_LED_GPIO_NUMBER, value);
-	if (ret != 0) {
-		sprintf(tmp, "%s", (char *)"fail");
-	} else {
-		sprintf(tmp, "%s", (char *)"success");
+	int led_number = 0;
+	int led_value = 0;
+
+	strncpy(tmp, rdata, BUFSIZE);
+
+	word = strtok(tmp, ":");
+	led_number = atoi(word);
+
+	word = strtok(NULL, ":");
+	led_value = atoi(word);
+
+	DBG("Led Number : %d, Value : %d", led_number, led_value);
+
+	switch (led_number) {
+	case 0:
+		led0 = led_value;
+		break;
+	case 1:
+		led1 = led_value;
+		break;
+	default:
+		break;
 	}
 
 	// 클라우드에서 조회 요청이 왔을때 관련된내용을 담아서 전달 함
@@ -104,7 +118,7 @@ void NubisonCB_Check(char* rdata, char* api, char* uniqkey)
 
 	// 클라우드에서 조회 요청이 왔을때 관련된내용을 담아서 전달 함
 	// 상태체크 성공적으로 되었는지확인해서 값을 전달함//
-	cloudif->SendtoCloud((char*)"ok", TYPE_STRING, api, uniqkey);
+	cloudif->SendtoCloud((char*)"Success.", TYPE_STRING, (char*)"check", uniqkey);
 }
 
 //5.Device 의 클라우드와의 인증 관련 콜백
@@ -127,9 +141,15 @@ void NubisonCB_AUTHO(int authocode)
 Eina_Bool app_idler(void *data)
 {
 	NubisonIF *nubif = (NubisonIF * )data;
+	char tmp[BUFSIZE] = {0, };
+
 	if(nubif != NULL) {
 		nubif->Loop();
 	}
+
+	sprintf(tmp, "%d:%d", led0, led1);
+	nubif->NotitoCloud(tmp, TYPE_STRING, mytoken, 1);
+
     return ECORE_CALLBACK_RENEW;
 }
 
